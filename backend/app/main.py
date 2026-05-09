@@ -20,17 +20,19 @@ app.add_middleware(
 
 @app.on_event("startup")
 def on_startup() -> None:
-    print("🚀 Starting application startup sequence...")
+    import logging
+    logger = logging.getLogger("uvicorn.error")
+    logger.info("🚀 Starting application startup sequence...")
     try:
         # Check DB connection
         from sqlalchemy import text
         from app.db.session import engine
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
-        print("✅ Database connection verified.")
+        logger.info("✅ Database connection verified.")
 
         init_db()
-        print("✅ Database tables initialized.")
+        logger.info("✅ Database tables initialized.")
 
         # Auto-seed if empty
         from sqlalchemy import select
@@ -40,17 +42,19 @@ def on_startup() -> None:
         try:
             exists = db.scalar(select(RiskLocation).limit(1))
             if not exists:
-                print("📝 Database empty. Auto-seeding initial data...")
+                logger.info("📝 Database empty. Auto-seeding initial data...")
                 from scripts.seed_data import seed_locations, seed_history
                 seed_locations()
                 seed_history()
-                print("✅ Auto-seeding complete.")
+                logger.info("✅ Auto-seeding complete.")
             else:
-                print("ℹ️ Database already contains data. Skipping seeding.")
+                logger.info("ℹ️ Database already contains data. Skipping seeding.")
         finally:
             db.close()
     except Exception as e:
-        print(f"❌ ERROR during startup: {e}")
+        logger.error(f"❌ ERROR during startup: {e}")
+        # Re-raise so gunicorn shows the error clearly
+        raise e
 
     # Pre-load ML model to avoid lag on first prediction
     from app.ml.predict import _load_model
