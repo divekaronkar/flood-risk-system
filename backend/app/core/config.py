@@ -62,8 +62,14 @@ class Settings(BaseSettings):
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
     def _fix_database_url(cls, v: str) -> str:
+        if not isinstance(v, str):
+            return v
+        # Fix for Railway/Aiven strings
         if v.startswith("mysql://"):
             return v.replace("mysql://", "mysql+pymysql://", 1)
+        # Ensure driver is present
+        if v.startswith("mysql:") and "pymysql" not in v:
+            return v.replace("mysql:", "mysql+pymysql:", 1)
         return v
 
     @field_validator("CORS_ORIGINS", mode="before")
