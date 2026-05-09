@@ -30,5 +30,17 @@ def init_db() -> None:
     from app.models.location import RiskLocation  # noqa: F401
     from app.models.history import HistoricalFloodRecord  # noqa: F401
 
-    Base.metadata.create_all(bind=engine)
+    import time
+    from sqlalchemy import text
+    max_retries = 5
+    for i in range(max_retries):
+        try:
+            # Create tables
+            Base.metadata.create_all(bind=engine)
+            return
+        except Exception as e:
+            if i == max_retries - 1:
+                raise e
+            print(f"⚠️ DB connection failed (attempt {i+1}/{max_retries}). Retrying in 5s...")
+            time.sleep(5)
 
