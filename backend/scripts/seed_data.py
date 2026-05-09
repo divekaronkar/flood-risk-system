@@ -6,7 +6,8 @@ from pathlib import Path
 from sqlalchemy import select
 
 # Allow running as: `python backend/scripts/seed_data.py`
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.db.session import SessionLocal, init_db
 from app.models.history import HistoricalFloodRecord

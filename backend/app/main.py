@@ -25,8 +25,23 @@ def on_startup() -> None:
     # restart the API to create tables.
     try:
         init_db()
+        # Auto-seed if empty
+        from sqlalchemy import select
+        from app.db.session import SessionLocal
+        from app.models.location import RiskLocation
+        db = SessionLocal()
+        try:
+            exists = db.scalar(select(RiskLocation).limit(1))
+            if not exists:
+                print("Database empty. Auto-seeding initial data...")
+                from scripts.seed_data import seed_locations, seed_history
+                seed_locations()
+                seed_history()
+                print("Auto-seeding complete.")
+        finally:
+            db.close()
     except Exception as e:
-        print(f"DB init skipped (startup): {e}")
+        print(f"DB init or seeding failed (startup): {e}")
 
     # Pre-load ML model to avoid lag on first prediction
     from app.ml.predict import _load_model
