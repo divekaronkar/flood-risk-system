@@ -1,0 +1,123 @@
+:root {
+  --bg0: #0b1020;
+  --bg1: #0f172a;
+  --card: rgba(255, 255, 255, 0.06);
+  --card2: rgba(255, 255, 255, 0.09);
+  --border: rgba(148, 163, 184, 0.16);
+  --text: #cbd5e1;
+  --muted: #94a3b8;
+  --heading: #e2e8f0;
+  --accent: #7c3aed;
+  --accent2: #22c55e;
+  --danger: #ef4444;
+  --warn: #f59e0b;
+  --shadow: rgba(0, 0, 0, 0.35) 0 18px 40px -22px;
+  --radius: 14px;
+
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: dark;
+  color: var(--text);
+  background: radial-gradient(1200px 700px at 20% 0%, #1b2247 0%, transparent 60%),
+    radial-gradient(900px 600px at 100% 20%, #2c1a54 0%, transparent 55%),
+    linear-gradient(180deg, var(--bg0), var(--bg1));
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+a {
+  color: inherit;
+}
+
+.container {
+  width: min(1200px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(124, 58, 237, 0.9), rgba(124, 58, 237, 0.72));
+  color: white;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.btn.secondary {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(15, 23, 42, 0.55);
+  color: var(--heading);
+  outline: none;
+}
+.input:focus {
+  border-color: rgba(124, 58, 237, 0.7);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.18);
+}
+
+.grid {
+  display: grid;
+  gap: 14px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.06);
+}
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--muted);
+}
+.dot.low {
+  background: var(--accent2);
+}
+.dot.medium {
+  background: var(--warn);
+}
+.dot.high {
+  background: var(--danger);
+}
+
+.leaflet-container {
+  border-radius: 14px;
+}
