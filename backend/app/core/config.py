@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24
 
     # ML model path
-    MODEL_PATH: str = "app/ml/model.joblib"
+    MODEL_PATH: str = str(Path(__file__).resolve().parents[1] / "ml" / "model.joblib")
 
     # Simulated SMS settings
     ALERT_RISK_THRESHOLD: float = 0.80
@@ -57,6 +57,13 @@ class Settings(BaseSettings):
     # Real-time refresh (Open-Meteo)
     REALTIME_ENABLED: bool = True
     REALTIME_REFRESH_SECONDS: int = 60
+
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def _fix_database_url(cls, v: str) -> str:
+        if v.startswith("mysql://"):
+            return v.replace("mysql://", "mysql+pymysql://", 1)
+        return v
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod

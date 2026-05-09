@@ -4,6 +4,12 @@ import axios from 'axios'
 // Default to 127.0.0.1 to avoid "Network Error" in the browser.
 const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 
+export const getWsUrl = () => {
+  const url = new URL(API_BASE)
+  const protocol = url.protocol === 'https:' ? 'wss:' : 'ws:'
+  return `${protocol}//${url.host}/api/ws`
+}
+
 export const api = axios.create({
   baseURL: `${API_BASE}/api`,
 })

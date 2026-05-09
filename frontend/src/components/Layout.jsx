@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { clearToken, getUser } from '../lib/auth.js'
+import { getWsUrl } from '../lib/api.js'
 
 export function Layout() {
   const navigate = useNavigate()
@@ -9,7 +10,7 @@ export function Layout() {
   const [highRiskLocations, setHighRiskLocations] = useState([])
 
   useEffect(() => {
-    const ws = new WebSocket('ws://127.0.0.1:8000/api/ws')
+    const ws = new WebSocket(getWsUrl())
     ws.onmessage = (evt) => {
       try {
         const msg = JSON.parse(evt.data)

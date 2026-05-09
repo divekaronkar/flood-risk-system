@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CircleMarker, MapContainer, Popup, TileLayer, useMap } from 'react-leaflet'
-import { api } from '../lib/api.js'
+import { api, getWsUrl } from '../lib/api.js'
 
 function FitBounds({ locations }) {
   const map = useMap()
@@ -48,7 +48,7 @@ export function RiskMapPage() {
 
   useEffect(() => {
     if (!live) return
-    const ws = new WebSocket('ws://127.0.0.1:8000/api/ws')
+    const ws = new WebSocket(getWsUrl())
     ws.onmessage = (evt) => {
       try {
         const msg = JSON.parse(evt.data)
