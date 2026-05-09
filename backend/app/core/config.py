@@ -2,6 +2,7 @@ from pathlib import Path
 
 import json
 
+from typing import Any
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -23,7 +24,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=_pick_env_file(), extra="ignore")
 
     APP_ENV: str = "dev"
-    CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
+    CORS_ORIGINS: Any = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
     # MySQL: mysql+pymysql://USER:PASSWORD@HOST:3306/DBNAME
     DATABASE_URL: str = "mysql+pymysql://root:root@localhost:3306/flood_risk"
@@ -68,21 +69,23 @@ class Settings(BaseSettings):
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def _parse_cors_origins(cls, v):
-        # Support env formats like:
-        # CORS_ORIGINS=["http://localhost:5173"]  (JSON)
-        # CORS_ORIGINS=http://localhost:5173     (single string)
         if isinstance(v, list):
             return v
         if isinstance(v, str):
-            s = v.strip()
-            if s.startswith("["):
+            v = v.strip()
+            # If it looks like a JSON list, try to parse it
+            if v.startswith("[") and v.endswith("]"):
                 try:
-                    parsed = json.loads(s)
+                    import json
+                    parsed = json.loads(v)
                     if isinstance(parsed, list):
                         return parsed
                 except Exception:
                     pass
-            return [s]
+            # Otherwise, split by comma or just wrap in a list
+            if "," in v:
+                return [i.strip() for i in v.split(",") if i.strip()]
+            return [v]
         return ["http://localhost:5173", "http://127.0.0.1:5173"]
 
 
