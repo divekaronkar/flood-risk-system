@@ -16,7 +16,26 @@ export const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  } else {
+    delete config.headers.Authorization
+  }
   return config
+}, (error) => {
+  return Promise.reject(error)
 })
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // If we get a 401, the token is invalid or expired.
+      // We should clear it so the user can log in again.
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+    }
+    return Promise.reject(error)
+  }
+)
 
