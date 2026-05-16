@@ -9,15 +9,19 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 def _pick_env_file() -> str:
     """
-    We run uvicorn from the repo root with `--app-dir backend`,
-    so `.env` usually lives at `backend/.env` (not repo-root `.env`).
+    Look for .env file in the current working directory first, 
+    then in the backend folder.
     """
-    repo_root = Path(__file__).resolve().parents[3]
-    backend_env = repo_root / "backend" / ".env"
-    root_env = repo_root / ".env"
+    cwd_env = Path.cwd() / ".env"
+    if cwd_env.exists():
+        return str(cwd_env)
+    
+    # Fallback to backend folder relative to this file
+    backend_env = Path(__file__).resolve().parents[2] / ".env"
     if backend_env.exists():
         return str(backend_env)
-    return str(root_env)
+    
+    return ".env"
 
 
 class Settings(BaseSettings):
@@ -64,12 +68,19 @@ class Settings(BaseSettings):
     def _fix_database_url(cls, v: str) -> str:
         if not isinstance(v, str):
             return v
-        # Fix for Railway/Aiven strings
+        
+        # PostgreSQL support for Render
+        if v.startswith("postgres://"):
+            return v.replace("postgres://", "postgresql://", 1)
+            
+        # Fix for Railway/Aiven/PlanetScale strings
         if v.startswith("mysql://"):
             return v.replace("mysql://", "mysql+pymysql://", 1)
-        # Ensure driver is present
+            
+        # Ensure driver is present for MySQL
         if v.startswith("mysql:") and "pymysql" not in v:
             return v.replace("mysql:", "mysql+pymysql:", 1)
+            
         return v
 
     @field_validator("CORS_ORIGINS", mode="before")
