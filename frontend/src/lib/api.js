@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // On Windows, `localhost` can resolve to IPv6 (::1) while backend is bound to 127.0.0.1.
 // Default to 127.0.0.1 to avoid "Network Error" in the browser.
-const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+const API_BASE = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '')
 
 export const getWsUrl = () => {
   const url = new URL(API_BASE)

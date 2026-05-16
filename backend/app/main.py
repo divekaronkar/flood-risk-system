@@ -9,10 +9,18 @@ from app.services.realtime_service import realtime_loop
 
 app = FastAPI(title="Flood-Risk Detection System API", version="1.0.0")
 
+# Smart CORS handling
+allow_origins = settings.CORS_ORIGINS
+allow_credentials = True
+
+# CORS specification: if allow_credentials is True, allow_origins cannot be ["*"]
+if "*" in allow_origins:
+    allow_credentials = False
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
-    allow_credentials=True,
+    allow_origins=allow_origins,
+    allow_credentials=allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
