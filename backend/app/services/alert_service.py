@@ -40,10 +40,33 @@ def send_broadcast_alerts(msg: str):
                     except Exception as e:
                         print(f"Failed to send SMS to {user.phone_number}: {e}")
 
-        # 2. Email (Resend or SMTP)
+        # 2. Email (Brevo, Resend, or SMTP)
         if not settings.ALERT_SIMULATION_MODE:
-            # 2a. Resend (Recommended for Render)
-            if settings.RESEND_API_KEY:
+            # 2a. Brevo (Best for No-Domain / Free tier)
+            if settings.BREVO_API_KEY and settings.BREVO_FROM_EMAIL:
+                import requests
+                url = "https://api.brevo.com/v3/smtp/email"
+                headers = {
+                    "accept": "application/json",
+                    "content-type": "application/json",
+                    "api-key": settings.BREVO_API_KEY
+                }
+                
+                for user in users:
+                    if user.email:
+                        try:
+                            payload = {
+                                "sender": {"name": settings.BREVO_FROM_NAME, "email": settings.BREVO_FROM_EMAIL},
+                                "to": [{"email": user.email}],
+                                "subject": "FLOOD RISK ALERT",
+                                "textContent": msg
+                            }
+                            requests.post(url, json=payload, headers=headers)
+                        except Exception as e:
+                            print(f"Failed to send email via Brevo to {user.email}: {e}")
+
+            # 2b. Resend (Requires paid domain for multiple recipients)
+            elif settings.RESEND_API_KEY:
                 import resend
                 resend.api_key = settings.RESEND_API_KEY
                 

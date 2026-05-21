@@ -63,6 +63,11 @@ class Settings(BaseSettings):
     RESEND_API_KEY: str | None = None
     RESEND_FROM_EMAIL: str = "onboarding@resend.dev"
 
+    # Brevo (No-Domain Free Email API)
+    BREVO_API_KEY: str | None = None
+    BREVO_FROM_EMAIL: str | None = None
+    BREVO_FROM_NAME: str = "Flood Alert System"
+
     # Real-time refresh (Open-Meteo)
     REALTIME_ENABLED: bool = True
     REALTIME_REFRESH_SECONDS: int = 60
