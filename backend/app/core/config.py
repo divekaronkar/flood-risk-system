@@ -59,6 +59,10 @@ class Settings(BaseSettings):
     SMTP_FROM_EMAIL: str | None = None
     SMTP_TLS: bool = True
 
+    # Resend (Email API - Recommended for Render)
+    RESEND_API_KEY: str | None = None
+    RESEND_FROM_EMAIL: str = "onboarding@resend.dev"
+
     # Real-time refresh (Open-Meteo)
     REALTIME_ENABLED: bool = True
     REALTIME_REFRESH_SECONDS: int = 60

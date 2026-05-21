@@ -59,5 +59,6 @@ uvicorn==0.46.0
 gunicorn==23.0.0
 watchfiles==1.1.1
 psycopg2-binary==2.9.9
+resend==2.4.0
 websockets==16.0
 yarl==1.23.0

@@ -40,38 +40,57 @@ def send_broadcast_alerts(msg: str):
                     except Exception as e:
                         print(f"Failed to send SMS to {user.phone_number}: {e}")
 
-        # 2. Email (SMTP)
-        if (
-            not settings.ALERT_SIMULATION_MODE
-            and settings.SMTP_HOST
-            and settings.SMTP_USER
-            and settings.SMTP_PASSWORD
-        ):
-            import smtplib
-            from email.mime.text import MIMEText
+        # 2. Email (Resend or SMTP)
+        if not settings.ALERT_SIMULATION_MODE:
+            # 2a. Resend (Recommended for Render)
+            if settings.RESEND_API_KEY:
+                import resend
+                resend.api_key = settings.RESEND_API_KEY
+                
+                for user in users:
+                    if user.email:
+                        try:
+                            resend.Emails.send({
+                                "from": settings.RESEND_FROM_EMAIL,
+                                "to": user.email,
+                                "subject": "FLOOD RISK ALERT",
+                                "text": msg,
+                            })
+                        except Exception as e:
+                            print(f"Failed to send email via Resend to {user.email}: {e}")
             
-            try:
-                with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
-                    if settings.SMTP_TLS:
-                        server.starttls()
-                    server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-                    
-                    for user in users:
-                        if user.email:
-                            try:
-                                email_msg = MIMEText(msg)
-                                email_msg["Subject"] = "FLOOD RISK ALERT"
-                                email_msg["From"] = settings.SMTP_FROM_EMAIL or settings.SMTP_USER
-                                email_msg["To"] = user.email
-                                server.send_message(email_msg)
-                            except Exception as e:
-                                print(f"Failed to send email to {user.email}: {e}")
-            except Exception as e:
-                print(f"SMTP connection failed: {e}")
+            # 2b. SMTP (Legacy - often blocked on Render)
+            elif settings.SMTP_HOST and settings.SMTP_USER and settings.SMTP_PASSWORD:
+                import smtplib
+                from email.mime.text import MIMEText
+                
+                try:
+                    with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
+                        if settings.SMTP_TLS:
+                            server.starttls()
+                        server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+                        
+                        for user in users:
+                            if user.email:
+                                try:
+                                    email_msg = MIMEText(msg)
+                                    email_msg["Subject"] = "FLOOD RISK ALERT"
+                                    email_msg["From"] = settings.SMTP_FROM_EMAIL or settings.SMTP_USER
+                                    email_msg["To"] = user.email
+                                    server.send_message(email_msg)
+                                except Exception as e:
+                                    print(f"Failed to send email via SMTP to {user.email}: {e}")
+                except Exception as e:
+                    print(f"SMTP connection failed: {e}")
 
         # 3. Simulation Mode
         if settings.ALERT_SIMULATION_MODE:
             print(f"[ALERT SIMULATION] Broadcasting to {len(users)} users: {msg}")
+            for user in users:
+                if user.phone_number:
+                    print(f"  -> SMS to {user.phone_number}")
+                if user.email:
+                    print(f"  -> Email to {user.email}")
 
     finally:
         db.close()
