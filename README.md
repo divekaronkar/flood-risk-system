@@ -40,7 +40,6 @@ The project is built using a modern, scalable tech stack:
 ### **Database & Services**
 - **Neon (Free PostgreSQL)**: Cloud database for production.
 - **MySQL (local, XAMPP)**: For local development.
-- **Twilio API**: For sending real-time SMS alerts to mobile devices.
 - **Brevo API**: For free email alerts without needing a custom domain.
 - **Open-Meteo API**: For fetching live weather metrics (Rainfall, Humidity) without requiring a private API key.
 
